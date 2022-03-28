@@ -2,6 +2,7 @@ import React from "react";
 import './StakesTable.css';
 import {BigNumber} from "bignumber.js";
 import {numberWithCommas} from '../utils/Utils';
+import tns from "../libs/tns"
 
 const ten18 = (new BigNumber(10)).pow(18); // 10^18, 1 Theta = 10^18 ThetaWei, 1 Gamma = 10^ TFuelWei
 
@@ -27,17 +28,27 @@ function stakeTypeToTokenUrl(stakeType){
 }
 
 class StakesTableRow extends React.Component {
+    constructor(){
+        super();
+        this.state = { tnsName: false };
+    }
+
+    async componentDidMount() {
+        if(this.props.stake && this.props.stake.holder) {
+            const tnsName = await tns.getDomainName(this.props.stake.holder);
+            this.setState({tnsName: tnsName});
+        }
+    }
+
     render() {
         let { stake } = this.props;
         let {holder, amount, withdrawn, return_height, type} = stake;
-
         const amountBn = (new BigNumber(amount)).dividedBy(ten18);
 
         return (
-            <tr className="StakesTableRow"
-            >
+            <tr className="StakesTableRow">
                 <td>{stakeTypeToNodeType(type)}</td>
-                <td>{holder}</td>
+                <td><TNS addr={holder} tnsName={this.state.tnsName} /></td>
                 <td>
                     <div className={'StakesTableRow__token-wrapper'}>
                         <img className='StakesTableRow__token-img' src={stakeTypeToTokenUrl(type)}/>
@@ -53,12 +64,8 @@ class StakesTableRow extends React.Component {
 
 class StakesTable extends React.Component {
     createRows(){
-        let stakes = this.props.stakes;
-
         return this.props.stakes.map(function(stake, index){
-            return <StakesTableRow key={ stake._id }
-                                   stake={stake}
-            />;
+            return <StakesTableRow key={ stake._id } stake={stake} />;
         });
     };
 
@@ -83,5 +90,21 @@ class StakesTable extends React.Component {
         );
     }
 }
+
+const TNS = ({addr, tnsName}) => {
+    return (
+        <div className="value tooltip">
+            {tnsName &&
+            <div className="tooltip--text">
+                <p>
+                    {tnsName}<br/>
+                    ({addr})
+                </p>
+            </div>}
+            {tnsName ? tnsName : addr ? addr : ''}
+        </div>
+    );
+};
+
 
 export default StakesTable;

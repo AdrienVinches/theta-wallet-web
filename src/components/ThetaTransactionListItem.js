@@ -11,7 +11,7 @@ import Wallet from "../services/Wallet";
 class ThetaTransactionListItem extends React.Component {
     constructor(){
         super();
-        this.state = { transaction: false };
+        this.state = { tnsName: false };
     }
 
     async componentDidMount() {
@@ -25,20 +25,19 @@ class ThetaTransactionListItem extends React.Component {
             const tnsName = await tns.getDomainName(
                 address.toLowerCase() === to.toLowerCase() ? from : to
             );
-            this.props.transaction.tnsName = tnsName;
-            this.setState({transaction: this.props.transaction});
+            this.setState({tnsName: tnsName});
         }
     }
 
     render() {
-        let transaction = this.state.transaction || this.props.transaction;
-        let {inputs, outputs, timestamp,  tnsName, is_local} = transaction;
+        let transaction = this.props.transaction;
+        let {inputs, outputs, timestamp, is_local} = transaction;
         let address = Wallet.getWalletAddress();
         let input = (inputs ? inputs[0] : null);
         let output = (outputs ? outputs[0] : null);
-        let fromRaw = _.get(input, ['address']);
-        let toRaw = _.get(output, ['address']);
-        let bound = address.toLowerCase() === toRaw.toLowerCase() ? "inbound" : "outbound";
+        let from = _.get(input, ['address']);
+        let to = _.get(output, ['address']);
+        let bound = address.toLowerCase() === to.toLowerCase() ? "inbound" : "outbound";
         let isReceived = (bound === "inbound");
         let explorerUrl = Theta.getTransactionExplorerUrl(transaction);
         let thetaAmount = _.get(output, ['coins', 'thetawei']);
@@ -57,7 +56,7 @@ class ThetaTransactionListItem extends React.Component {
                         <div className="ThetaTransactionListItem__address-container">
                             <div className="ThetaTransactionListItem__address-prefix" >{isReceived ? "FROM:" : "TO:"}</div>
                             <div className="ThetaTransactionListItem__address">
-                                <TNS addr={isReceived ? fromRaw : toRaw} tnsName={tnsName} />
+                                <TNS addr={isReceived ? from : to} tnsName={this.state.tnsName} />
                             </div>
                         </div>
                     </div>
