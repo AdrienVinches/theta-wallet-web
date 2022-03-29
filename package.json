@@ -10,6 +10,7 @@
     "@thetalabs/tnt20-contract-metadata": "^1.0.2",
     "@ukstv/jazzicon-react": "^1.0.0",
     "await-timeout": "^0.3.0",
+    "awesome-debounce-promise": "^2.1.0",
     "bignumber.js": "^8.0.1",
     "classnames": "^2.2.6",
     "ethereumjs-util": "^6.1.0",
